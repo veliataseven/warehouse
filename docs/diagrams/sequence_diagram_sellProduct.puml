@@ -1,0 +1,34 @@
+@startuml
+
+actor User
+
+participant "ProductController" as PC
+participant "ProductService" as PS
+participant "ProductServiceImpl" as PSI
+participant "ProductRepository" as PR
+participant "InventoryRepository" as IR
+participant "ProductDTO" as PDT
+participant "DTOMapper" as DM
+participant "Article" as A
+
+User -> PC : Request to sell product
+PC -> PS : sellProduct(productName)
+PS -> PSI : sellProduct(productName)
+PSI -> PR : findByName(productName)
+PR -> PSI : Return product
+PSI -> IR : findAll()  // Fetch all articles in inventory
+IR -> PSI : Return list of articles
+PSI -> PSI : checkStockAndUpdateInventory(product, inventory)
+PSI -> PSI : Iterate over articles in product
+PSI -> IR : findArticleInInventory(article)
+IR -> PSI : Return article from inventory
+PSI -> PSI : Check if stock is enough
+PSI -> A : Decrease stock of article
+PSI -> IR : Save updated inventory
+PSI -> DM : toProductDTO(product)
+DM -> PDT : Map product to ProductDTO
+PSI -> PS : Return ProductDTO
+PS -> PC : Return ProductDTO
+PC -> User : Return ProductDTO
+
+@enduml

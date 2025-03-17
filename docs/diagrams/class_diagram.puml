@@ -1,0 +1,157 @@
+@startuml
+
+package "warehouse.controller" {
+  class ProductController {
+    - logger : Logger
+    - productService : ProductService
+    + ProductController(productService : ProductService)
+    + getAvailableProducts() : Object
+    + sellProduct(productName : String) : Object
+  }
+
+  class DataImportController {
+    - logger : Logger
+    - dataImportService : DataImportService
+    + DataImportController(dataImportService : DataImportService)
+    + loadData(articlesFilePath : String, productsFilePath : String) : String
+  }
+
+  class InventoryController {
+    - logger : Logger
+    - inventoryService : InventoryService
+    + InventoryController(inventoryService : InventoryService)
+    + getAllArticles() : List<ArticleDTO>
+  }
+}
+
+package "warehouse.service" {
+  class ProductService {
+    + getAvailableProducts() : List<ProductDTO>
+    + sellProduct(productName : String) : ProductDTO
+  }
+
+  class ProductServiceImpl {
+    - logger : Logger
+    - productRepository : ProductRepository
+    - inventoryRepository : InventoryRepository
+    + ProductServiceImpl(productRepository : ProductRepository, inventoryRepository : InventoryRepository)
+    + getAvailableProducts() : List<ProductDTO>
+    - calculateAvailableQuantity(product : Product) : int
+    + sellProduct(productName : String) : ProductDTO
+    - checkStockAndUpdateInventory(product : Product, inventory : List<Article>) : void
+    - findArticleInInventory(article : Article, inventory : List<Article>) : Article
+  }
+
+  class InventoryService {
+    + getInventory() : List<ArticleDTO>
+  }
+
+  class InventoryServiceImpl {
+    - logger : Logger
+    - inventoryRepository : InventoryRepository
+    + InventoryServiceImpl(inventoryRepository : InventoryRepository)
+    + getInventory() : List<ArticleDTO>
+  }
+
+  class DataImportService {
+    + loadProductsFromFile(filePath : String) : void
+    + loadArticlesFromFile(filePath : String) : void
+  }
+
+  class DataImportServiceImpl {
+    - logger : Logger
+    - productRepository : ProductRepository
+    - inventoryRepository : InventoryRepository
+    + DataImportServiceImpl(productRepository : ProductRepository, inventoryRepository : InventoryRepository)
+    + loadArticlesFromFile(filePath : String) : void
+    + loadProductsFromFile(filePath : String) : void
+    - readInventoryFile(filePath : String) : InventoryWrapperDTO
+    - saveArticles(articles : List<Article>) : void
+    - readProductFile(filePath : String) : JsonNode
+    - processProducts(productsNode : JsonNode) : void
+    - createProductFromJson(productNode : JsonNode) : Product
+    - processArticles(articlesNode : JsonNode, product : Product) : void
+    - findArticleById(artId : String) : Article
+  }
+}
+
+package "warehouse.model" {
+  class Product {
+    - id : Long
+    - name : String
+    - price : double
+    - articles : List<Article>
+    - articleQuantities : Map<String, Integer>
+    + Product()
+    + Product(id : Long, name : String, price : double)
+  }
+
+  class Article {
+    - artId : String
+    - name : String
+    - stock : int
+    + Article()
+    + Article(artId : String, name : String, stock : int)
+  }
+}
+
+package "warehouse.repository" {
+  class ProductRepository {
+    + findByName(name : String) : Optional<Product>
+    + findAll() : List<Product>
+  }
+
+  class InventoryRepository {
+    + findByArtId(artId : String) : Article
+    + findAll() : List<Article>
+    + saveAll(articles : List<Article>) : void
+  }
+}
+
+'package "warehouse.dto" {
+'  class ProductDTO {
+'    - name : String
+'    - price : double
+'    - containArticles : List<ArticleDTO>
+'    - availableQuantity : int
+'    + ProductDTO(name : String, price : double)
+'    + ProductDTO(name : String, price : double, containArticles : List<ArticleDTO>, availableQuantity : int)
+'  }
+'
+'  class ArticleDTO {
+'    - artId : String
+'    - name : String
+'    - stock : int
+'    + ArticleDTO(artId : String, name : String, stock : int)
+'  }
+'
+'  class ErrorResponseDTO {
+'    - message : String
+'    - details : List<String>
+'    - statusCode : int
+'    + ErrorResponseDTO(message : String, details : List<String>, statusCode : int)
+'  }
+'
+'    class InventoryWrapperDTO {
+'      - inventory : List<Article>
+'      + InventoryWrapperDTO()
+'      + InventoryWrapperDTO(inventory : List<Article>)
+'    }
+'}
+
+ProductController --> ProductService
+DataImportController --> DataImportService
+InventoryController --> InventoryService
+ProductServiceImpl --> ProductRepository
+ProductServiceImpl --> InventoryRepository
+InventoryServiceImpl --> InventoryRepository
+DataImportServiceImpl --> ProductRepository
+DataImportServiceImpl --> InventoryRepository
+DataImportServiceImpl --> Product
+DataImportServiceImpl --> Article
+ProductRepository --> Product
+InventoryRepository --> Article
+ProductRepository --> Product
+InventoryRepository --> Article
+
+@enduml

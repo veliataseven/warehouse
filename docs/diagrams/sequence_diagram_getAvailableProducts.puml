@@ -1,0 +1,25 @@
+@startuml
+
+actor User
+
+participant "ProductController" as PC
+participant "ProductService" as PS
+participant "ProductServiceImpl" as PSI
+participant "ProductRepository" as PR
+participant "DTOMapper" as DM
+participant "ProductDTO" as PDTO
+
+User -> PC : Request to get available products
+PC -> PS : getAvailableProducts()
+PS -> PSI : getAvailableProducts()
+PSI -> PR : findAll()  // Fetch all products
+PR -> PSI : return list of products
+PSI -> PSI : Calculate available quantity for each product
+PSI -> DM : toProductDTO(product)
+DM -> PDTO : Map product to ProductDTO
+PSI -> PSI : Set available quantity in ProductDTO
+PSI -> PS : Return List<ProductDTO>
+PS -> PC : Return List<ProductDTO>
+PC -> User : Return available products
+
+@enduml
