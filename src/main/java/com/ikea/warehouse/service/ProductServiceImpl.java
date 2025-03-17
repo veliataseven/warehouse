@@ -2,6 +2,7 @@ package com.ikea.warehouse.service;
 
 import com.ikea.warehouse.dto.ProductDTO;
 import com.ikea.warehouse.exception.InsufficientStockException;
+import com.ikea.warehouse.exception.NoDataFoundException;
 import com.ikea.warehouse.exception.ProductNotFoundException;
 import com.ikea.warehouse.mapper.DTOMapper;
 import com.ikea.warehouse.model.Article;
@@ -40,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (products.isEmpty()) {
             logger.warn("No products available.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            throw new NoDataFoundException("No products available.");
         }
 
         for (Product product : products) {

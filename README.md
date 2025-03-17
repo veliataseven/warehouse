@@ -237,6 +237,20 @@ Raised when there is insufficient stock to sell the product.
 }
 ```
 
+### **3. NoDataFoundException**
+
+Raised when no data (such as articles or products) is found in the database.
+
+### **Response**
+
+```json
+{
+   "message": "No articles found in the inventory.",
+   "details": ["No data found in the system."],
+   "statusCode": 404
+}
+```
+
 ## Conclusion
 
 This warehouse management system is designed to handle the basic functionality of managing products, articles, and inventory. The system can load articles and products from files, update product quantities based on inventory, and handle product sales by updating the stock.

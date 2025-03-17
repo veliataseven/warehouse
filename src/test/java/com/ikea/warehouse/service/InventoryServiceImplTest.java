@@ -3,6 +3,7 @@ package com.ikea.warehouse.service;
 import com.ikea.warehouse.dto.ArticleDTO;
 import com.ikea.warehouse.model.Article;
 import com.ikea.warehouse.repository.InventoryRepository;
+import com.ikea.warehouse.exception.NoDataFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -11,8 +12,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,12 +61,11 @@ public class InventoryServiceImplTest {
         // Arrange
         when(inventoryRepository.findAll()).thenReturn(Arrays.asList());
 
-        // Act
-        ResponseEntity<List<ArticleDTO>> response = inventoryService.getInventory();
+        // Act & Assert
+        NoDataFoundException thrown = assertThrows(NoDataFoundException.class, () -> {
+            inventoryService.getInventory();
+        });
 
-        // Assert
-        assertNotNull(response);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(null, response.getBody());  // Body should be null when no articles are found
+        assertEquals("No articles found in the inventory.", thrown.getMessage());
     }
 }

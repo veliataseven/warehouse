@@ -2,6 +2,7 @@ package com.ikea.warehouse.service;
 
 import com.ikea.warehouse.dto.ProductDTO;
 import com.ikea.warehouse.exception.InsufficientStockException;
+import com.ikea.warehouse.exception.NoDataFoundException;
 import com.ikea.warehouse.exception.ProductNotFoundException;
 import com.ikea.warehouse.model.Article;
 import com.ikea.warehouse.model.Product;
@@ -62,6 +63,19 @@ public class ProductServiceImplTest {
         assertEquals(1, response.getBody().size());
         assertEquals("Dining Chair", response.getBody().get(0).getName());
         assertEquals(1, response.getBody().get(0).getAvailableQuantity());  // 5/3 = 1 available quantity
+    }
+
+    @Test
+    public void testGetAvailableProducts_NoDataFoundException() {
+        // Arrange: return empty list of products
+        when(productRepository.findAll()).thenReturn(Arrays.asList());
+
+        // Act & Assert
+        NoDataFoundException thrown = assertThrows(NoDataFoundException.class, () -> {
+            productService.getAvailableProducts();
+        });
+
+        assertEquals("No products available.", thrown.getMessage());
     }
 
     @Test

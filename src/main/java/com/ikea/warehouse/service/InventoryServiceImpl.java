@@ -4,12 +4,12 @@ import com.ikea.warehouse.dto.ArticleDTO;
 import com.ikea.warehouse.mapper.DTOMapper;
 import com.ikea.warehouse.model.Article;
 import com.ikea.warehouse.repository.InventoryRepository;
+import com.ikea.warehouse.exception.NoDataFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -29,16 +29,16 @@ public class InventoryServiceImpl implements InventoryService {
         logger.info("Fetching all articles in inventory.");
         List<Article> articles = inventoryRepository.findAll();
 
-        // If no articles are found, return a 404 NOT FOUND response
+        // If no articles are found, throw NoDataFoundException
         if (articles.isEmpty()) {
             logger.warn("No articles found in the inventory.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            throw new NoDataFoundException("No articles found in the inventory.");
         }
 
         // Convert the list of articles to a list of ArticleDTOs
         List<ArticleDTO> articleDTOList = DTOMapper.toArticleDTOList(articles);
 
         // Return a 200 OK response with the list of articles
-        return ResponseEntity.status(HttpStatus.OK).body(articleDTOList);
+        return ResponseEntity.ok(articleDTOList);
     }
 }
